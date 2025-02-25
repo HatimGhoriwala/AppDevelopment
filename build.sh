@@ -1,45 +1,63 @@
 #!/bin/bash
 set -e  # Stop script if any command fails
 
-# Create directory for Java
+echo "🚀 Starting Build Process..."
+
+# 🟢 Step 1: Setup Java
+echo "📦 Setting up Java JDK..."
 mkdir -p $PWD/jdk
 
-# Download and extract AdoptOpenJDK (now Eclipse Temurin)
-wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.18_10.tar.gz -O jdk.tar.gz
+if [ ! -f "jdk.tar.gz" ]; then
+  wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.18_10.tar.gz -O jdk.tar.gz
+fi
+
 tar -xzf jdk.tar.gz -C $PWD/jdk --strip-components=1
 
-# Set JAVA_HOME to extracted JDK
 export JAVA_HOME=$PWD/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 
-# Verify Java installation
-java -version
+echo "✅ Java Version:"
+java -version || { echo "❌ ERROR: Java setup failed!"; exit 1; }
 
-# Define Android SDK paths
+# 🟢 Step 2: Setup Android SDK
+echo "📦 Setting up Android SDK..."
 export ANDROID_HOME=$PWD/android-sdk
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
 
-# Create SDK directory if it doesn't exist
 mkdir -p $ANDROID_HOME/cmdline-tools
 
-# Download and extract Android SDK tools
-wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O sdk-tools.zip
+if [ ! -f "sdk-tools.zip" ]; then
+  wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O sdk-tools.zip
+fi
+
 unzip -q sdk-tools.zip -d $ANDROID_HOME/cmdline-tools/
 
-# Ensure correct folder structure
-mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+# Fix folder structure
+mv -f $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest || true
 
-# Accept licenses
+# Accept Licenses
 yes | sdkmanager --licenses || true
 
 # Install required SDK components
 sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-# Navigate to Android project directory
-mkdir -p /opt/render/project/src/android-project
-cd /opt/render/project/src/android-project || exit 1
+# 🟢 Step 3: Navigate to Android Project
+ANDROID_PROJECT_DIR="/opt/render/project/src/android-project"
 
-# Give Gradle wrapper executable permissions
+echo "📁 Navigating to Android project directory: $ANDROID_PROJECT_DIR"
+mkdir -p $ANDROID_PROJECT_DIR
+cd $ANDROID_PROJECT_DIR || { echo "❌ ERROR: Failed to access Android project directory!"; exit 1; }
+
+# 🟢 Step 4: Check for `gradlew`
+if [ ! -f "gradlew" ]; then
+  echo "⚠️ WARNING: 'gradlew' not found! Attempting to regenerate..."
+  ./gradlew wrapper || { echo "❌ ERROR: Failed to generate gradlew!"; exit 1; }
+fi
+
+# 🟢 Step 5: Build the Android App
+echo "🔨 Giving Gradle permissions & building project..."
 chmod +x gradlew
-./gradlew assembleDebug
+./gradlew assembleDebug || { echo "❌ ERROR: Gradle build failed!"; exit 1; }
+
+echo "✅ Build completed successfully!"
