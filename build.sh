@@ -1,27 +1,29 @@
 #!/bin/bash
 
-# Update system and install Java
-apt-get update && apt-get install -y openjdk-17-jdk wget unzip
+set -e  # Stop script if any command fails
 
-# Set Java environment variables
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
+# Install dependencies
+apt-get update && apt-get install -y wget unzip
 
-# Install Gradle
-wget https://services.gradle.org/distributions/gradle-8.3-bin.zip
-unzip gradle-8.3-bin.zip -d /opt/
-export PATH=/opt/gradle-8.3/bin:$PATH
+# Setup Android SDK
+export ANDROID_SDK_ROOT=/opt/android-sdk
+mkdir -p $ANDROID_SDK_ROOT
+cd $ANDROID_SDK_ROOT
 
-# Install Android SDK
-mkdir -p /opt/android-sdk
-cd /opt/android-sdk
 wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-unzip commandlinetools-linux-8512546_latest.zip -d tools
-export ANDROID_HOME=/opt/android-sdk
-export PATH=$ANDROID_HOME/tools/bin:$PATH
-yes | sdkmanager --licenses
-sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.1"
+unzip commandlinetools-linux-8512546_latest.zip -d $ANDROID_SDK_ROOT
+mv cmdline-tools tools
+mkdir cmdline-tools/latest
+mv tools cmdline-tools/latest
 
-# Build APK
+export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
+
+# Install SDK components
+yes | sdkmanager --licenses
+sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
+# Setup Gradle
 cd /app/android-project
+chmod +x gradlew
 ./gradlew assembleDebug
