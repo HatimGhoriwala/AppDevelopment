@@ -19,16 +19,18 @@ export PATH=$JAVA_HOME/bin:$PATH
 echo "✅ Java Version:"
 java -version || { echo "❌ ERROR: Java setup failed!"; exit 1; }
 
-# 🟢 Step 2: Install Gradle (if missing)
+# 🟢 Step 2: Install Gradle Locally (Inside Project Directory)
 echo "📦 Checking for Gradle installation..."
-if ! command -v gradle &>/dev/null; then
-  echo "⚠️ Gradle not found! Installing Gradle..."
+GRADLE_DIR="$PWD/gradle"
+
+if [ ! -d "$GRADLE_DIR" ]; then
+  echo "⚠️ Gradle not found! Installing Gradle locally..."
   wget https://services.gradle.org/distributions/gradle-8.3-bin.zip -O gradle.zip
-  mkdir -p /opt/gradle
-  unzip -q gradle.zip -d /opt/gradle
-  export PATH="/opt/gradle/gradle-8.3/bin:$PATH"
-  echo "✅ Gradle Installed Successfully!"
+  mkdir -p "$GRADLE_DIR"
+  unzip -q gradle.zip -d "$GRADLE_DIR"
 fi
+
+export PATH="$GRADLE_DIR/gradle-8.3/bin:$PATH"
 
 echo "✅ Gradle Version:"
 gradle -v || { echo "❌ ERROR: Gradle installation failed!"; exit 1; }
