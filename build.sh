@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e  # Stop script if any command fails
 
+# Install Java (OpenJDK 11)
+apt-get update && apt-get install -y openjdk-11-jdk
+
+# Set JAVA_HOME
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
 # Define Android SDK paths
 export ANDROID_HOME=$PWD/android-sdk
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
