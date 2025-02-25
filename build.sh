@@ -37,6 +37,7 @@ yes | sdkmanager --licenses || true
 sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
 # Navigate to Android project directory
+mkdir -p /opt/render/project/src/android-project
 cd /opt/render/project/src/android-project || exit 1
 
 # Give Gradle wrapper executable permissions
