@@ -1,29 +1,27 @@
 #!/bin/bash
-
 set -e  # Stop script if any command fails
 
-# Install dependencies
-apt-get update && apt-get install -y wget unzip
+# Define local installation paths inside the project directory
+export ANDROID_HOME=$PWD/android-sdk
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+export PATH=$ANDROID_HOME/platform-tools:$PATH
 
-# Setup Android SDK
-export ANDROID_SDK_ROOT=/opt/android-sdk
-mkdir -p $ANDROID_SDK_ROOT
-cd $ANDROID_SDK_ROOT
+# Create SDK directory inside the project
+mkdir -p $ANDROID_HOME
 
+# Download and extract Android SDK tools inside project directory
 wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-unzip commandlinetools-linux-8512546_latest.zip -d $ANDROID_SDK_ROOT
-mv cmdline-tools tools
-mkdir cmdline-tools/latest
-mv tools cmdline-tools/latest
+unzip commandlinetools-linux-8512546_latest.zip -d $ANDROID_HOME
+mkdir -p $ANDROID_HOME/cmdline-tools/latest
+mv $ANDROID_HOME/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
 
-export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
-export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
+# Accept Android SDK licenses
+yes | sdkmanager --licenses || true
 
-# Install SDK components
-yes | sdkmanager --licenses
+# Install required SDK components
 sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-# Setup Gradle
-cd /app/android-project
+# Setup Gradle Wrapper
+cd /app/android-project || exit 1
 chmod +x gradlew
 ./gradlew assembleDebug
