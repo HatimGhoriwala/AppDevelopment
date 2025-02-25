@@ -1,17 +1,25 @@
 #!/bin/bash
 set -e  # Stop script if any command fails
 
-# Install Java
-apt-get update && apt-get install -y openjdk-11-jdk
+# Create directory for Java
+mkdir -p $PWD/jdk
 
-# Find and set the correct JAVA_HOME
-export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
-echo "JAVA_HOME set to $JAVA_HOME"
+# Download and extract AdoptOpenJDK (now Eclipse Temurin)
+wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.18_10.tar.gz -O jdk.tar.gz
+tar -xzf jdk.tar.gz -C $PWD/jdk --strip-components=1
+
+# Set JAVA_HOME to extracted JDK
+export JAVA_HOME=$PWD/jdk
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Verify Java installation
+java -version
 
 # Define Android SDK paths
 export ANDROID_HOME=$PWD/android-sdk
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
+
 # Create SDK directory if it doesn't exist
 mkdir -p $ANDROID_HOME/cmdline-tools
 
