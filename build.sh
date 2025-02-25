@@ -1,18 +1,17 @@
 #!/bin/bash
 set -e  # Stop script if any command fails
 
-# Install Java (OpenJDK 11)
+# Install Java
 apt-get update && apt-get install -y openjdk-11-jdk
 
-# Set JAVA_HOME
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
+# Find and set the correct JAVA_HOME
+export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+echo "JAVA_HOME set to $JAVA_HOME"
 
 # Define Android SDK paths
 export ANDROID_HOME=$PWD/android-sdk
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
-
 # Create SDK directory if it doesn't exist
 mkdir -p $ANDROID_HOME/cmdline-tools
 
