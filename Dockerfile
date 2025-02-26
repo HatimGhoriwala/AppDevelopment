@@ -24,6 +24,7 @@ RUN mkdir -p ${ANDROID_HOME} && \
     yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
 # Set up application
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false"
 WORKDIR /app
 COPY package.json ./
 RUN npm install
