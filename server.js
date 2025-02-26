@@ -150,10 +150,11 @@ async function updateLayout(projectDir, xmlConfig) {
 }
 
 // Helper function to build APK using Gradle
+// In server.js, update the buildApk function
 async function buildApk(projectDir) {
     return new Promise((resolve, reject) => {
         const gradleCmd = process.platform === 'win32' ? 'gradlew.bat' : './gradlew';
-        const cmd = `cd ${projectDir} && ${gradleCmd} assembleDebug`;
+        const cmd = `cd ${projectDir} && ${gradleCmd} assembleDebug --no-daemon`;
         
         exec(cmd, { env }, (error, stdout, stderr) => {
             if (error) {
