@@ -1,12 +1,12 @@
 FROM node:18
 
-# Install dependencies (curl, unzip, and Java)
+# Install dependencies
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk curl unzip && \
     rm -rf /var/lib/apt/lists/*
 
-# Set Java environment
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+# Set Java environment (correct path for Debian-based node:18)
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Set Android SDK environment
@@ -17,11 +17,11 @@ ENV PATH=$PATH:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/cmdline-tools/late
 WORKDIR /tmp
 RUN mkdir -p ${ANDROID_HOME} && \
     curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
-    unzip sdk-tools.zip -d ${ANDROID_HOME} && \
+    unzip sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools && \
     rm sdk-tools.zip && \
     mkdir -p ${ANDROID_HOME}/cmdline-tools/latest && \
-    mv ${ANDROID_HOME}/cmdline-tools/* ${ANDROID_HOME}/cmdline-tools/latest/ || true && \
-    yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0" || { echo "sdkmanager failed"; exit 1; }
+    mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools/* ${ANDROID_HOME}/cmdline-tools/latest/ && \
+    yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
 
 # Set up application
 WORKDIR /app
