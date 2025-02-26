@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: android-builder
+    env: node
+    plan: free # or whatever plan you choose
+    buildCommand: npm install && apt-get update && apt-get install -y openjdk-17-jdk && # Add Android SDK setup here
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: ANDROID_HOME
+        value: /usr/local/android-sdk
+      - key: JAVA_HOME
+        value: /usr/lib/jvm/java-17-openjdk
